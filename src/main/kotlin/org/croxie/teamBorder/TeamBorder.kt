@@ -5,10 +5,10 @@ import org.bukkit.plugin.java.JavaPlugin
 class TeamBorder : JavaPlugin() {
 
     override fun onEnable() {
-        // Plugin startup logic
+        logger.info("Enabling...")
     }
 
     override fun onDisable() {
-        // Plugin shutdown logic
+        logger.info("Disabling...")
     }
 }

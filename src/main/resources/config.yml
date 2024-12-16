@@ -1,0 +1,10 @@
+﻿# TeamBorder by Foxiel
+
+# Sets the size of the groups
+group-size: 3
+
+# Configures the border
+world-border:
+  start: 100
+  end: 1000
+  set: false
