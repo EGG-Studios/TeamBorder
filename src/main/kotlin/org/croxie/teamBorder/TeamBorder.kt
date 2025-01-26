@@ -6,6 +6,12 @@ class TeamBorder : JavaPlugin() {
 
     override fun onEnable() {
         logger.info("Enabling...")
+
+        saveDefaultConfig();
+
+        val worldBorderManager = WorldBorderManager(this)
+        worldBorderManager.setupWorldBorder();
+        logger.info("Plugin loaded successfully!")
     }
 
     override fun onDisable() {

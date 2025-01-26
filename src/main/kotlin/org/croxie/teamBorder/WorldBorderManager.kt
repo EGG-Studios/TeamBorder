@@ -1,31 +1,21 @@
-﻿package org.croxie.teamBorder;
+﻿package org.croxie.teamBorder
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.Bukkit
 
-public class WorldBorderManager {
-
-    private final TeamBorder plugin;
-
-    public WorldBorderManager(TeamBorder plugin) {
-        this.plugin = plugin;
-    }
-
-    public void setupWorldBorder() {
-        int worldBorderSize = plugin.getConfig().getInt("world-border.start");
-        boolean isWorldBorderEnabled = plugin.getConfig().getBoolean("world-border.set");
+class WorldBorderManager(private val plugin: TeamBorder) {
+    fun setupWorldBorder() {
+        val worldBorderSize = plugin.config.getInt("world-border.start")
+        val isWorldBorderEnabled = plugin.config.getBoolean("world-border.set")
 
         if (!isWorldBorderEnabled) {
-           World world = Bukkit.getWorlds().get(0);
-           if (world != null) {
-               world.getWorldBorder().setCenter(0, 0);
-               world.getWorldBorder().setSize(worldBorderSize);
+            val world = Bukkit.getWorlds()[0]
+            if (world != null) {
+                world.worldBorder.setCenter(0.0, 0.0)
+                world.worldBorder.size = worldBorderSize.toDouble()
 
-               plugin.getConfig().set("world-border.set", true);
-               plugin.saveConfig();
-           }
+                plugin.config["world-border.set"] = true
+                plugin.saveConfig()
+            }
         }
     }
 }
