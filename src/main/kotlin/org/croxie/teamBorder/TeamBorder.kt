@@ -1,24 +1,49 @@
 package org.croxie.teamBorder
 
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 
 class TeamBorder : JavaPlugin(), Listener {
     private val damagedPlayers = mutableSetOf<UUID>()
+    private val deadTeams = mutableSetOf<String>()
+    private val worldBorderManager = WorldBorderManager(this)
+
+    private var lastDay: Long = 0L
 
     override fun onEnable() {
         server.pluginManager.registerEvents(this, this)
+        server.scheduler.runTaskTimer(this, Runnable {
+            checkDay()
+        }, 0L, 1L)
+
         saveDefaultConfig()
 
-        val worldBorderManager = WorldBorderManager(this)
         worldBorderManager.setupWorldBorder()
         logger.info("Plugin loaded successfully!")
+    }
+
+    private fun checkDay() {
+        val world = Bukkit.getWorlds()[0]
+        val currentDay = world.fullTime / 24000
+
+        if (currentDay != lastDay) {
+            val players = Bukkit.getOnlinePlayers()
+            for (player in players) {
+                player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
+                player.sendMessage("A day without people dying?! Your reward is a world border expansion!")
+            }
+
+            lastDay = currentDay
+            worldBorderManager.expandBorder()
+        }
     }
 
     @EventHandler
@@ -60,5 +85,14 @@ class TeamBorder : JavaPlugin(), Listener {
                 damagedPlayers.remove(teammate.uniqueId)
             }
         }
+    }
+
+    @EventHandler
+    fun onPlayerDeath(event: PlayerDeathEvent) {
+        val player = event.entity
+        val team = PlayerManager().checkTeam(player) ?: return
+
+        deadTeams.add(team.name)
+        worldBorderManager.shrinkBorder()
     }
 }

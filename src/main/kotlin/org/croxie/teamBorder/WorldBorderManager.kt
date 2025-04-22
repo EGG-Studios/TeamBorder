@@ -1,6 +1,7 @@
 ﻿package org.croxie.teamBorder
 
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 
 class WorldBorderManager(private val plugin: TeamBorder) {
     fun setupWorldBorder() {
@@ -15,6 +16,43 @@ class WorldBorderManager(private val plugin: TeamBorder) {
 
                 plugin.config["world-border.set"] = true
                 plugin.saveConfig()
+            }
+        }
+    }
+
+    fun expandBorder() {
+        val endWorldBorderSize = plugin.config.getInt("world-border.end")
+
+        val world = Bukkit.getWorlds()[0]
+        if (world != null) {
+            val currentWorldBorderSize = world.worldBorder.size
+            if (currentWorldBorderSize < endWorldBorderSize) {
+                world.worldBorder.size += 16
+            } else {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
+                    player.sendMessage("Congratulations! The world border has reached its maximum size.")
+                }
+            }
+        }
+    }
+
+    fun shrinkBorder() {
+        val world = Bukkit.getWorlds()[0]
+        if (world != null) {
+            val currentWorldBorderSize = world.worldBorder.size
+            if (currentWorldBorderSize > 10) {
+                for (player in Bukkit.getOnlinePlayers()) {
+                    player.playSound(player.location, Sound.ENTITY_EVOKER_PREPARE_ATTACK, 1f, 1f)
+                    player.sendMessage("A team died... The world border is shrinking!")
+                }
+
+                val prediction = currentWorldBorderSize - 16
+                if (prediction < 10) {
+                    world.worldBorder.size = 10.0
+                } else {
+                    world.worldBorder.size -= 16
+                }
             }
         }
     }
