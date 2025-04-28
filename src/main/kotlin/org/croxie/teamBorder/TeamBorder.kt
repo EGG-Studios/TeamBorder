@@ -38,7 +38,7 @@ class TeamBorder : JavaPlugin(), Listener {
             val players = Bukkit.getOnlinePlayers()
             for (player in players) {
                 player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
-                player.sendMessage("A day without people dying?! Your reward is a world border expansion!")
+                player.sendMessage("Good morning! The world border is expanding!")
             }
 
             lastDay = currentDay
