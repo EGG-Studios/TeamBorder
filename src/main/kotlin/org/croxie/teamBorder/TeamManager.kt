@@ -5,7 +5,6 @@ import org.bukkit.entity.Player
 
 
 class TeamManager(private val plugin: TeamBorder) {
-    // Manages the teams, like creating teams, adding players to teams, etc]
     fun checkEmpty(): String? {
         val teams = Bukkit.getScoreboardManager().mainScoreboard.teams
 
