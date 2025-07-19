@@ -48,7 +48,7 @@ class TeamManager(private val plugin: TeamBorder) {
         return teamName
     }
 
-    fun addPlayer (player: Player, teamName: String) {
+    fun addPlayer(player: Player, teamName: String) {
         val team = Bukkit.getScoreboardManager().mainScoreboard.getTeam(teamName)
         team?.addPlayer(player)
     }
