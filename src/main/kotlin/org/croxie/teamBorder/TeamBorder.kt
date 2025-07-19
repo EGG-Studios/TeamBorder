@@ -36,10 +36,22 @@ class TeamBorder : JavaPlugin(), Listener {
 
         if (currentDay != lastDay) {
             val players = Bukkit.getOnlinePlayers()
+
+            if (players.isEmpty()) return
+
+            if (!deadTeams.isEmpty()) {
+                for (player in players) {
+//                    player.playSound(player.location, add sound 1f, 1f)
+                    player.sendMessage("${deadTeams.size} teams have died today! Border will not expand.")
+                    lastDay = currentDay
+
+                    return
+                }
+            }
+
             for (player in players) {
                 player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
                 player.sendMessage("Good morning! The world border is expanding!")
-                // Add that it only expands if no one died that day
             }
 
             lastDay = currentDay
@@ -91,11 +103,9 @@ class TeamBorder : JavaPlugin(), Listener {
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
         val player = event.entity
-        logger.info("${player.name} has died!")
         val team = PlayerManager().checkTeam(player) ?: return
 
         deadTeams.add(team.name)
-        logger.info("Team ${team.name} has lost a member!")
         worldBorderManager.queueShrinkBorder()
     }
 }
