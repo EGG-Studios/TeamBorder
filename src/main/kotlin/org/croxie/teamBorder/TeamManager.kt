@@ -44,7 +44,6 @@ class TeamManager(private val plugin: TeamBorder) {
 
         val teamName = adjectives.random() + nouns.random()
         Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam(teamName)
-
         return teamName
     }
 
