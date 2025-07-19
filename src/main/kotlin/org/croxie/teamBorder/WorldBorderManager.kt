@@ -79,11 +79,6 @@ class WorldBorderManager(private val plugin: TeamBorder) {
         if (world != null) {
             val currentWorldBorderSize = world.worldBorder.size
             if (currentWorldBorderSize > 32) {
-                for (player in Bukkit.getOnlinePlayers()) {
-                    player.playSound(player.location, Sound.ENTITY_EVOKER_PREPARE_ATTACK, 1f, 1f)
-                    player.sendMessage("Someone died... The world border is shrinking!")
-                }
-
                 val prediction = currentWorldBorderSize - 32
                 if (prediction < 32) {
                     world.worldBorder.size = 32.0

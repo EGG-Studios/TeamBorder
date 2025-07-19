@@ -41,13 +41,14 @@ class TeamBorder : JavaPlugin(), Listener {
             if (players.isEmpty()) return
 
             if (!deadTeams.isEmpty()) {
-                for (player in players) {
-//                    player.playSound(player.location, add sound 1f, 1f)
-                    player.sendMessage("People have died ${deadTeams.size} times the previous day! The world border will not expand.")
-                    deadTeams.clear()
 
-                    return
+                for (player in players) {
+                    player.playSound(player.location, Sound.ENTITY_RAVAGER_ROAR, 1f, 1f)
+                    player.sendMessage("${deadTeams.size} ${if (deadTeams.size == 1) "team" else "teams"} died the previous day! The world border will not expand.")
                 }
+                deadTeams.clear()
+
+                return
             }
 
             for (player in players) {
@@ -105,6 +106,11 @@ class TeamBorder : JavaPlugin(), Listener {
     fun onPlayerDeath(event: PlayerDeathEvent) {
         val player = event.entity
         val team = PlayerManager().checkTeam(player) ?: return
+
+        for (player in Bukkit.getOnlinePlayers()) {
+            player.playSound(player.location, Sound.ENTITY_EVOKER_PREPARE_ATTACK, 1f, 1f)
+            player.sendMessage("Someone died... The world border is shrinking!")
+        }
 
         deadTeams.add(team.name)
         worldBorderManager.queueShrinkBorder()
