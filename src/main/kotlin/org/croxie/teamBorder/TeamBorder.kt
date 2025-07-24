@@ -26,6 +26,7 @@ class TeamBorder : JavaPlugin(), Listener {
 
         saveDefaultConfig()
 
+        logger.info("setup world border")
         worldBorderManager.setupWorldBorder()
         logger.info("Plugin loaded successfully!")
     }

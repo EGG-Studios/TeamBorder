@@ -14,38 +14,48 @@ class WorldBorderManager(private val plugin: TeamBorder) {
     fun setupWorldBorder() {
         val worldBorderSize = plugin.config.getInt("world-border.start")
         val isWorldBorderEnabled = plugin.config.getBoolean("world-border.set")
+        val worlds = Bukkit.getWorlds()
+
+        plugin.logger.warning("in setupWorldBorder, worldBorderSize: $worldBorderSize, isWorldBorderEnabled: $isWorldBorderEnabled")
+        plugin.logger.info("in setupWorldBorder, worlds: ${worlds.size}")
 
         if (!isWorldBorderEnabled) {
-            val world = Bukkit.getWorlds()[0]
-            if (world != null) {
-                world.worldBorder.setCenter(0.0, 0.0)
-                world.worldBorder.size = worldBorderSize.toDouble()
-
-                plugin.config["world-border.set"] = true
-                plugin.saveConfig()
+            for (world in worlds) {
+                if (world != null) {
+                    plugin.logger.warning("setting world border for ${world.name} to $worldBorderSize")
+                    world.worldBorder.setCenter(0.0, 0.0)
+                    world.worldBorder.size = worldBorderSize.toDouble()
+                }
             }
+            plugin.config["world-border.set"] = true
+            plugin.saveConfig()
         }
     }
 
     fun expandBorder() {
         val endWorldBorderSize = plugin.config.getInt("world-border.end")
+        val worlds = Bukkit.getWorlds()
 
-        val world = Bukkit.getWorlds()[0]
-        if (world != null) {
-            val currentWorldBorderSize = world.worldBorder.size
-            if (currentWorldBorderSize < endWorldBorderSize) {
-                isExpanding = true
-                world.worldBorder.setSize(currentWorldBorderSize + 32.0, 10L)
-                Bukkit.getScheduler().runTaskLater(plugin, Runnable {
-                    isExpanding = false
-                }, 11L)
-            } else {
+        for (world in worlds) {
+            if (world != null) {
+                val currentWorldBorderSize = world.worldBorder.size
+                if (currentWorldBorderSize < endWorldBorderSize) {
+                    isExpanding = true
+                    val newSize = (currentWorldBorderSize + 16.0).coerceAtMost(endWorldBorderSize.toDouble())
+                    world.worldBorder.setSize(newSize, 10L)
+                }
+            }
+        }
+        Bukkit.getScheduler().runTaskLater(plugin, Runnable {
+            isExpanding = false
+            val allExpanded = worlds.all { it != null && it.worldBorder.size >= endWorldBorderSize }
+            if (allExpanded) {
                 for (player in Bukkit.getOnlinePlayers()) {
                     player.playSound(player.location, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f)
                     player.sendMessage("Congratulations! The world border has reached its maximum size.")
                 }
             }
-        }
+        }, 11L)
     }
 
     fun queueShrinkBorder() {
@@ -75,17 +85,20 @@ class WorldBorderManager(private val plugin: TeamBorder) {
     }
 
     private fun shrinkBorder(onComplete: () -> Unit) {
-        val world = Bukkit.getWorlds()[0]
-        if (world != null) {
-            val currentWorldBorderSize = world.worldBorder.size
-            if (currentWorldBorderSize > 32) {
-                val prediction = currentWorldBorderSize - 32
-                if (prediction < 32) {
-                    world.worldBorder.size = 32.0
-                    onComplete()
-                } else {
-                    world.worldBorder.setSize(prediction, 10L)
-                    waitForBorderSize(prediction) { onComplete() }
+        val worlds = Bukkit.getWorlds()
+
+        for (world in worlds) {
+            if (world != null) {
+                val currentWorldBorderSize = world.worldBorder.size
+                if (currentWorldBorderSize > 16) {
+                    val prediction = currentWorldBorderSize - 16
+                    if (prediction < 16) {
+                        world.worldBorder.size = 16.0
+                        onComplete()
+                    } else {
+                        world.worldBorder.setSize(prediction, 10L)
+                        waitForBorderSize(prediction) { onComplete() }
+                    }
                 }
             }
         }
